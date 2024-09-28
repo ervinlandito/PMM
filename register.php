@@ -3,9 +3,8 @@
 require_once "config.php";
  
 // Define variables and initialize with empty values
-$username = $password = $confirm_password = "";
-$username_err = $password_err = $confirm_password_err = "";
- 
+$username = $password = $confirm_password = $nik = "";
+$username_err = $password_err = $confirm_password_err = $nik_err = "";
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
@@ -40,8 +39,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
          
         // Close statement
         mysqli_stmt_close($stmt);
+        }
+    // Validate NIK
+    if(empty(trim($_POST["nik"]))){
+        $nik_err = "Please enter a NIK.";
+    } elseif(strlen(trim($_POST["nik"])) != 16 || !ctype_digit(trim($_POST["nik"]))){
+        $nik_err = "NIK must be 16 digits.";
+    } else{
+        $nik = trim($_POST["nik"]);
     }
-    
+
     // Validate password
     if(empty(trim($_POST["password"]))){
         $password_err = "Please enter a password.";     
@@ -60,20 +67,34 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $confirm_password_err = "Password did not match.";
         }
     }
-    
-    // Check input errors before inserting in database
-    if(empty($username_err) && empty($password_err) && empty($confirm_password_err)){
+    // Prepare a select statement to check for duplicate NIK
+    $sql = "SELECT id FROM users WHERE nik = ?";
+
+    if($stmt = mysqli_prepare($con, $sql)){
+        mysqli_stmt_bind_param($stmt, "s", $param_nik);
+        $param_nik = $nik;
+        if(mysqli_stmt_execute($stmt)){
+        mysqli_stmt_store_result($stmt);
+        if(mysqli_stmt_num_rows($stmt) > 0){
+            $nik_err = "This NIK is already taken.";
+            }
+        }
+    }
+
+// Check input errors before inserting in database
+    if(empty($username_err) && empty($password_err) && empty($confirm_password_err) && empty($nik_err)){
         
         // Prepare an insert statement
-        $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        $sql = "INSERT INTO users (username, password, nik) VALUES (?, ?, ?)";
          
         if($stmt = mysqli_prepare($con, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ss", $param_username, $param_password);
+            mysqli_stmt_bind_param($stmt, "sss", $param_username, $param_password, $param_nik);
             
             // Set parameters
             $param_username = $username;
             $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
+            $param_nik = $nik;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
@@ -151,10 +172,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
 
             <div class="form-group <?php echo (!empty($username_err)) ? 'has-error' : ''; ?>">
-                <label>Username</label>
+                <label>Nama</label>
                 <input type="text" name="username" class="form-control" value="<?php echo $username; ?>">
                 <span class="help-block"><?php echo $username_err; ?></span>
-            </div>    
+            </div> 
+            <div class="form-group <?php echo (!empty($nik_err)) ? 'has-error' : ''; ?>">
+                <label>NIK</label>
+                <input type="text" name="nik" class="form-control" value="<?php echo $nik; ?>">
+                <span class="help-block"><?php echo $nik_err; ?></span>
+            </div>   
             <div class="form-group <?php echo (!empty($password_err)) ? 'has-error' : ''; ?>">
                 <label>Password</label>
                 <input type="password" name="password" class="form-control" value="<?php echo $password; ?>">

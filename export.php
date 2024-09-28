@@ -53,7 +53,7 @@ if(isset($_POST["export"]))
   }
   $output .= '</table>';
   header('Content-Type: application/xls');
-  header('Content-Disposition: attachment; filename=Shivshakti_all_Cards_Data.xls');
+  header('Content-Disposition: attachment; filename=Data_Siswa_Lengkap.xls');
   echo $output;
  }
 }

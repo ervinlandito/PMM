@@ -549,7 +549,7 @@ while ($row = mysqli_fetch_array($run_data)) {
     <div class='modal-content'>
       <div class='modal-header'>
              <button type='button' class='close' data-dismiss='modal'>&times;</button>
-             <h4 class='modal-title text-center'>Edit your Data</h4> 
+             <h4 class='modal-title text-center'>Edit Data Siswa</h4> 
       </div>
 
       <div class='modal-body'>

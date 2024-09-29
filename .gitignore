@@ -7,3 +7,4 @@ composer.lock
 *.sublime-workspace
 .DS_Store
 Thumbs.db
+data_nik.php

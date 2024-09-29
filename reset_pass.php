@@ -1,20 +1,20 @@
 <?php
 // Initialize the session
 session_start();
- 
-// Check if the user is logged in, otherwise redirect to login page
-if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
+
+// Check if the user is coming from valid NIK entry
+if(!isset($_SESSION['nik'])){
+    header("location: reset_password_nik.php");
     exit;
 }
- 
+
 // Include config file
 require_once "config.php";
- 
+
 // Define variables and initialize with empty values
 $new_password = $confirm_password = "";
 $new_password_err = $confirm_password_err = "";
- 
+
 // Processing form data when form is submitted
 if($_SERVER["REQUEST_METHOD"] == "POST"){
  
@@ -22,7 +22,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty(trim($_POST["new_password"]))){
         $new_password_err = "Please enter the new password.";     
     } elseif(strlen(trim($_POST["new_password"])) < 6){
-        $new_password_err = "Password must have atleast 6 characters.";
+        $new_password_err = "Password must have at least 6 characters.";
     } else{
         $new_password = trim($_POST["new_password"]);
     }
@@ -40,20 +40,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Check input errors before updating the database
     if(empty($new_password_err) && empty($confirm_password_err)){
         // Prepare an update statement
-        $sql = "UPDATE users SET password = ? WHERE id = ?";
+        $sql = "UPDATE users SET password = ? WHERE nik = ?";
         
         if($stmt = mysqli_prepare($con, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "si", $param_password, $param_id);
+            mysqli_stmt_bind_param($stmt, "ss", $param_password, $param_nik);
             
             // Set parameters
             $param_password = password_hash($new_password, PASSWORD_DEFAULT);
-            $param_id = $_SESSION["id"];
+            $param_nik = $_SESSION["nik"];
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                // Password updated successfully. Destroy the session, and redirect to login page
-                session_destroy();
+                // Password updated successfully. Unset NIK and redirect to login page
+                unset($_SESSION['nik']);
                 header("location: login.php");
                 exit();
             } else{
@@ -69,40 +69,35 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     mysqli_close($con);
 }
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Reset Password</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <style type="text/css">
-        body{ font: 14px sans-serif; }
-        .wrapper{ width: 350px; padding: 20px; }
+        body { 
+            font: 14px sans-serif; 
+            display: flex;               /* Menggunakan flexbox */
+            justify-content: center;     /* Horizontal center */
+            align-items: center;         /* Vertical center */
+            height: 100vh;              /* Mengatur tinggi body agar mengisi seluruh viewport */
+            margin: 0;                  /* Menghilangkan margin */
+        }
+        .wrapper { 
+            width: 350px; 
+            padding: 20px; 
+            border: 1px solid #ddd;      /* Tambahan border untuk visualisasi */
+            border-radius: 5px;          /* Tambahan border-radius untuk tampilan */
+            background-color: #f8f9fa;   /* Tambahan background color */
+        }
     </style>
 </head>
 <body>
-
-<!-- navigation menu start  -->
-<nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="#" style="font-size:36px;">
-    <img src="" width="50" height="50" class="d-inline-block align-top" alt="">
-    Data Siswa
-  </a>
-
-  <form class="form-inline my-2 my-lg-0">
-      <img src="images/user.png" style="width:50px; height: 50px; margin-right:10px" alt="user-avtar">
-  <a href="logout.php" class="btn btn-primary"><i class="fa fa-lock-open"></i> Logout</a>
-    </form>
-</nav>
-<!-- navigation menu end  -->
-
-<div class="container my-4">
-<div class="card mx-auto" style="width: 20rem;"><br>
-<div class="card-body">
-<h2 style="text-align:center">Reset Password</h2>
-<hr>
-        <p>Silahkan isi form untuk mereset password.</p>
+    <div class="wrapper">
+        <h2>Reset Password</h2>
+        <p>Massukkan Password Baru.</p>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post"> 
             <div class="form-group <?php echo (!empty($new_password_err)) ? 'has-error' : ''; ?>">
                 <label>Password Baru</label>
@@ -115,8 +110,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <span class="help-block"><?php echo $confirm_password_err; ?></span>
             </div>
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Kirim">
-                <a class="btn btn-link" href="welcome.php">Batal</a>
+                <input type="submit" class="btn btn-primary" value="Submit">
             </div>
         </form>
     </div>    

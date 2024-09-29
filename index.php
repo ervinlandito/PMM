@@ -105,7 +105,7 @@ if(isset($_POST['submit'])){
 	<button class="btn btn-success" type="button" data-toggle="modal" data-target="#myModal">
   <i class="fa fa-plus"></i> Tambah Data Siswa Baru
   </button>
-  <a href="export.php" class="btn btn-success pull-right"><i class="fa fa-download"></i> Export Data</a>
+  <a href="welcome.php" class="btn btn-success pull-right"><i class=> </i>Akun Anda</a>
   <hr>
 		<table class="table table-bordered table-striped table-hover" id="myTable">
 		<thead>
@@ -114,7 +114,7 @@ if(isset($_POST['submit'])){
 				<th class="text-center" scope="col">Nama</th>
 				<th class="text-center" scope="col">Nomor Induk Siswa Nasional</th>
 				<th class="text-center" scope="col">No. HP</th>
-				<th class="text-center" scope="col">Staff Id</th>
+				<th class="text-center" scope="col">NIK Yang Mengisi</th>
 				<th class="text-center" scope="col">Lihat</th>
 				<th class="text-center" scope="col">Edit</th>
 				<th class="text-center" scope="col">Hapus</th>
@@ -344,8 +344,8 @@ if(isset($_POST['submit'])){
 
 
 <div class="form-group">
-<label for="inputAddress">ID Staff yang mengaktifkan kartu ini.</label>
-<input type="text" class="form-control" name="staff_id" maxlength="12" placeholder="Masukkan ID Staff Max 12 digit">
+<label for="inputAddress">ID Kepegawaian yang mengaktifkan kartu ini.</label>
+<input type="text" class="form-control" name="staff_id" maxlength="16" placeholder="Masukkan ID Kepegawaian Max 16 digit">
 </div>
 			
 
@@ -686,8 +686,8 @@ while ($row = mysqli_fetch_array($run_data)) {
 		</div>
 
         <div class='form-group'>
-            <label for='inputAddress'>ID Staff yang mengaktifkan kartu ini.</label>
-            <input type='text' class='form-control' name='staff_id' maxlength='12' placeholder='Masukkan 12-digit ID Staff' value='$staffCard'>
+            <label for='inputAddress'>ID Kepegawaian yang mengaktifkan kartu ini.</label>
+            <input type='text' class='form-control' name='staff_id' maxlength='16' placeholder='Masukkan Max 16-digit ID Kepegawaian' value='$staffCard'>
         </div>
 
         <div class='form-group'>

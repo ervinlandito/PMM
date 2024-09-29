@@ -23,7 +23,7 @@ if(isset($_POST["export"]))
                     <th>No. HP:</th>
                     <th>Anggota Keluarga</th>  
                     <th>Alamat</th>
-                    <th>ID Staff</th>  
+                    <th>ID Kepegawaian Yang Mengisi</th>  
                     <th>Tanggal Dikeluarkan:</th>
 
                     </tr>

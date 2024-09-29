@@ -32,25 +32,26 @@ if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
 <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="#" style="font-size:36px;">
     <img src="" width="200"  class="d-inline-block align-top" alt="">
-    Data Siswa
+    Data Kepegawaian
   </a>
 
   <form class="form-inline my-2 my-lg-0">
-      <img src="images/user.png" style="width:50px; height: 50px; margin-right:10px" alt="user-avtar">
-  <a href="logout.php" class="btn btn-primary"><i class="fa fa-lock-open"></i> Logout</a>
+      <img src="asset/PP Pegawai.png" style="width:50px; height: 50px; margin-right:10px" alt="user-avtar">
+  <a href="logout.php" class="btn btn-primary"><i class="fa fa-lock-open"></i> Keluar Akun</a>
     </form>
 </nav>
     <p>
 
     <div class="container">
-    <a href="" target="_blank"><img class="card-img-top" src="" alt="Card image cap" style="width:750px; height:400px;"></a>
+    <a href="" target="_blank"><img class="card-img-top" src="asset/PP Pegawai.png" alt="Card image cap" style="width:400px; height:400px;"></a>
     <div class="page-header">
-        <h1>Hi, <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b>. Welcome to our site.</h1>
+    <h1>Halo, <b><?php echo htmlspecialchars($_SESSION["nik"]); ?></b>, 
+    Nomor Induk Kepegawaian: <b><?php echo htmlspecialchars($_SESSION["username"]); ?></b>. Selamat Datang.</h1>
     </div>
     <hr>
     </div>
-        <a href="reset-password.php" class="btn btn-warning">Reset Your Password</a>
-        
+        <a href="reset-password.php" class="btn btn-warning">Reset Password Akun</a>
+        <a href="index.php" class="btn btn-primary">Kembali Halaman Utama</a>
     </p>
 	
 	

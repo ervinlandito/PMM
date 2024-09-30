@@ -1,118 +1,111 @@
 <?php
 // Include config file
 require_once "config.php";
- 
+
 // Define variables and initialize with empty values
 $username = $password = $confirm_password = $nik = "";
 $username_err = $password_err = $confirm_password_err = $nik_err = "";
-// Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
 
+// Processing form data when form is submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate username
-    if(empty(trim($_POST["username"]))){
-        $username_err = "Please enter a username.";
-    } else{
+    if (empty(trim($_POST["username"]))) {
+        $username_err = "Silahkan memasukkan username.";
+    } else {
+        $username = trim($_POST["username"]);
+        
         // Prepare a select statement
         $sql = "SELECT id FROM users WHERE username = ?";
         
-        if($stmt = mysqli_prepare($con, $sql)){
-            // Bind variables to the prepared statement as parameters
+        if ($stmt = mysqli_prepare($con, $sql)) {
             mysqli_stmt_bind_param($stmt, "s", $param_username);
+            $param_username = $username;
             
-            // Set parameters
-            $param_username = trim($_POST["username"]);
-            
-            // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                /* store result */
+            if (mysqli_stmt_execute($stmt)) {
                 mysqli_stmt_store_result($stmt);
-                
-                if(mysqli_stmt_num_rows($stmt) == 1){
-                    $username_err = "This username is already taken.";
-                } else{
-                    $username = trim($_POST["username"]);
-                }
-            } else{
+                if (mysqli_stmt_num_rows($stmt) == 1) {
+                    $username_err = "username sudah ada.";}
+            } else {
                 echo "Oops! Something went wrong. Please try again later.";
             }
-        }
-         
-        // Close statement
-        mysqli_stmt_close($stmt);
-        }
+        }mysqli_stmt_close($stmt);
+    }
+    
+    
     // Validate NIK
-    if(empty(trim($_POST["nik"]))){
+    if (empty(trim($_POST["nik"]))) {
         $nik_err = "Please enter a NIK.";
-    } elseif(strlen(trim($_POST["nik"])) != 16 || !ctype_digit(trim($_POST["nik"]))){
-        $nik_err = "NIK must be 16 digits.";
-    } else{
+    } else {
         $nik = trim($_POST["nik"]);
+        // Load valid NIKs from data_nik.php
+    require 'data_nik.php'; // Pastikan file data_nik.php sudah ada di sini
+
+        // Check if NIK is valid
+        if (!in_array($nik, $valid_niks)) {
+            $nik_err = "NIK is not valid or not registered.";
+        }
+    
+    // Check if NIK is already taken in the database only if there are no errors
+        if (empty($nik_err)) {
+            $sql = "SELECT id FROM users WHERE nik = ?";
+        if ($stmt = mysqli_prepare($con, $sql)) {
+            mysqli_stmt_bind_param($stmt, "s", $param_nik);
+            $param_nik = $nik;
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_store_result($stmt);
+                if (mysqli_stmt_num_rows($stmt) > 0) {
+                    $nik_err = "This NIK is already taken.";}
+                }
+            } mysqli_stmt_close($stmt);
+        }
     }
 
     // Validate password
-    if(empty(trim($_POST["password"]))){
-        $password_err = "Please enter a password.";     
-    } elseif(strlen(trim($_POST["password"])) < 6){
-        $password_err = "Password must have atleast 6 characters.";
-    } else{
+    if (empty(trim($_POST["password"]))) {
+        $password_err = "Please enter a password.";
+    } elseif (strlen(trim($_POST["password"])) < 6) {
+        $password_err = "Password must have at least 6 characters.";
+    } else {
         $password = trim($_POST["password"]);
     }
-    
+
     // Validate confirm password
-    if(empty(trim($_POST["confirm_password"]))){
-        $confirm_password_err = "Please confirm password.";     
-    } else{
+    if (empty(trim($_POST["confirm_password"]))) {
+        $confirm_password_err = "Please confirm password.";
+    } else {
         $confirm_password = trim($_POST["confirm_password"]);
-        if(empty($password_err) && ($password != $confirm_password)){
+        if (empty($password_err) && ($password != $confirm_password)) {
             $confirm_password_err = "Password did not match.";
         }
-    }
-    // Prepare a select statement to check for duplicate NIK
-    $sql = "SELECT id FROM users WHERE nik = ?";
-
-    if($stmt = mysqli_prepare($con, $sql)){
-        mysqli_stmt_bind_param($stmt, "s", $param_nik);
-        $param_nik = $nik;
-        if(mysqli_stmt_execute($stmt)){
-        mysqli_stmt_store_result($stmt);
-        if(mysqli_stmt_num_rows($stmt) > 0){
-            $nik_err = "This NIK is already taken.";
-            }
-        }
-    }
-
-// Check input errors before inserting in database
-    if(empty($username_err) && empty($password_err) && empty($confirm_password_err) && empty($nik_err)){
-        
-        // Prepare an insert statement
+    }  
+    // Check input errors before inserting into the database
+    if (empty($username_err) && empty($password_err) && empty($confirm_password_err) && empty($nik_err)) {
+    // Prepare an insert statement
         $sql = "INSERT INTO users (username, password, nik) VALUES (?, ?, ?)";
-         
-        if($stmt = mysqli_prepare($con, $sql)){
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sss", $param_username, $param_password, $param_nik);
-            
-            // Set parameters
-            $param_username = $username;
-            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
-            $param_nik = $nik;
-            
-            // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                // Redirect to login page
-                header("location: login.php");
-            } else{
-                echo "Something went wrong. Please try again later.";
+     
+        if ($stmt = mysqli_prepare($con, $sql)) {
+        // Bind variables to the prepared statement as parameters
+        mysqli_stmt_bind_param($stmt, "sss", $param_username, $param_password, $param_nik);
+        
+        // Set parameters
+        $param_username = $username;
+        $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
+        $param_nik = $nik;
+        
+        // Attempt to execute the prepared statement
+        if (mysqli_stmt_execute($stmt)) {
+            // Redirect to login page
+            header("location: login.php");
+            exit(); // Tambahkan exit untuk menghentikan eksekusi lebih lanjut
+        } else {
+            echo "Something went wrong. Please try again later.";
             }
-        }
-         
-        // Close statement
-        mysqli_stmt_close($stmt);
-    }
-    
-    // Close connection
+        }mysqli_stmt_close($stmt);
+    }// Close connection
     mysqli_close($con);
-}
+    }
 ?>
+
  
 <!DOCTYPE html>
 <html lang="en">
